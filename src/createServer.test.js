@@ -148,4 +148,68 @@ describe("A HTTP Server", () => {
       expect(spyArea).toBeCalledWith(length, width);
     });
   });
+  describe("when GET /triangle-perimeter", () => {
+    it("should respond with a status code of 200 and payload value is rectangle area correctly", async () => {
+      // Arrange
+      const sideA = 2;
+      const sideB = 8;
+      const base = 9;
+
+      const mathBasic = {
+        add: jest.fn().mockReturnValue(sideA + sideB + base),
+      };
+
+      const figureCalculator = new FigureCalculator(mathBasic);
+
+      const spyArea = jest.spyOn(
+        figureCalculator,
+        "calculateTrianglePerimeter"
+      );
+
+      const server = createServer({ figureCalculator });
+
+      // Action
+      const response = await server.inject({
+        method: "GET",
+        url: `/triangle-perimeter/${sideA}/${sideB}/${base}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.value).toEqual(19);
+      expect(spyArea).toBeCalledWith(sideA, sideB, base);
+    });
+  });
+  describe("when GET /triangle-area", () => {
+    it("should respond with a status code of 200 and payload value is rectangle area correctly", async () => {
+      // Arrange
+      const height = 2;
+      const base = 9;
+
+      const mathBasic = {
+        multiply: jest.fn().mockReturnValue(0.5 * height * base),
+      };
+
+      const figureCalculator = new FigureCalculator(mathBasic);
+
+      const spyArea = jest.spyOn(figureCalculator, "calculateTriangleArea");
+
+      const server = createServer({ figureCalculator });
+
+      // Action
+      const response = await server.inject({
+        method: "GET",
+        url: `/triangle-area/${height}/${base}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.value).toEqual(9);
+      expect(spyArea).toBeCalledWith(height, base);
+    });
+  });
 });
